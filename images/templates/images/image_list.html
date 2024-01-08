@@ -1,0 +1,7 @@
+{% extends 'images/base.html' %}
+
+{% block content %}
+    {% for image in images %}
+        <a href="{% url 'image_details' pk=image.pk %}"><img src="{{ image.content.url }}" alt="Image" height="206" width="206"></a>
+    {% endfor %}
+{% endblock %}

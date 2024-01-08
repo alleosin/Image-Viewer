@@ -1,0 +1,23 @@
+{% extends 'images/base.html' %}
+
+{% block content %}
+    <img src="{{ image.content.url }}" alt="Image">
+    <div class="description">
+        <p>Описание картинки: {{ image.description }} </p>
+    </div>
+    <div class="size">
+        <p>Размер картинки: {{ image.content.width }}x{{ image.content.height }}({{ image.content.size }} байт)</p>
+    </div>
+    <div class="predominant_color">
+        <p>Преобладающий цвет: {{ dominant_color }}</p>
+    </div>
+    <div class="average_color">
+        <p>Средний цвет: {{ average_color }}</p>
+    </div>
+    <div class="color_palette">
+        <p>Цветовая палитра:</p>
+        {% for color in palette %}
+            <p>{{ color }}</p>
+        {% endfor %}
+    </div>
+{% endblock %}
