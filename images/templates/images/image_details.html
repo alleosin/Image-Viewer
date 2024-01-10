@@ -5,27 +5,39 @@
 
     {% if user.is_authenticated %}
         <a href="{% url 'password_change' %}">Change password</a> |
-        <a href="{% url 'logout' %}">Logout</a>
+        <a href="{% url 'logout'%}">Logout</a>
     {% else %}
         <a href="{% url 'login' %}">Login</a> |
         <a href="{% url 'register' %}">Register</a>
     {% endif %}
 
     <img src="{{ image.content.url }}" alt="Image">
+
+    {% if user == image.author or admin %}
+        {% if user == image.author %}
+            <a href="{% url 'image_edit' pk=image.pk %}">Change image</a>
+        {% endif %}
+        <a href="{% url 'image_delete' pk=image.pk %}">Delete image</a>
+    {% endif %}
+
+    <div class="author">
+        <p>Author: <a href="{% url 'user_page' username=image.author %}">{{ image.author }}</a></p>
+    </div>
+
     <div class="description">
-        <p>Описание картинки: {{ image.description }} </p>
+        <p>Image description: {{ image.description }} </p>
     </div>
     <div class="size">
-        <p>Размер картинки: {{ image.content.width }}x{{ image.content.height }}({{ image.content.size }} байт)</p>
+        <p>Image size: {{ image.content.width }}x{{ image.content.height }}({{ image.content.size }} байт)</p>
     </div>
     <div class="predominant_color">
-        <p>Преобладающий цвет: {{ dominant_color }}</p>
+        <p>Dominant color: {{ dominant_color }}</p>
     </div>
     <div class="average_color">
-        <p>Средний цвет: {{ average_color }}</p>
+        <p>Average color: {{ average_color }}</p>
     </div>
     <div class="color_palette">
-        <p>Цветовая палитра:</p>
+        <p>Color palette:</p>
         {% for color in palette %}
             <p>{{ color }}</p>
         {% endfor %}

@@ -1,11 +1,14 @@
 from django.db import models
 
+
+from main import settings
+
 # Create your models here.
 
 class Image(models.Model):
-    content = models.ImageField(upload_to='img/')
+    #content = models.ImageField(upload_to='img/')
+    content = models.ImageField(null=True, blank=True, upload_to='img/', verbose_name = 'Picture')
     description = models.TextField()
-    size = models.CharField(max_length = 200)
-    predominant_color = models.CharField(max_length = 200)
-    average_color = models.CharField(max_length = 200)
-    color_palette = models.CharField(max_length = 200)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)

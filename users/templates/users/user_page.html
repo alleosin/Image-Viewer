@@ -6,12 +6,14 @@
     {% if user.is_authenticated %}
         <a href="{% url 'password_change' %}">Change password</a> |
         <a href="{% url 'logout' %}">Logout</a>
-        <a href="{% url 'image_new' %}">Add image</a>
     {% else %}
         <a href="{% url 'login' %}">Login</a> |
         <a href="{% url 'register' %}">Register</a>
     {% endif %}
 
+    <p>Page of user: {{ username }} </p>
+
+    <p>Images added by {{ username }}: </p>
     {% for image in images %}
         <a href="{% url 'image_details' pk=image.pk %}"><img src="{{ image.content.url }}" alt="Image" height="206" width="206"></a>
     {% endfor %}

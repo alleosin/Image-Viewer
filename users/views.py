@@ -1,11 +1,15 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import Group
 
+from images.models import Image
 from users.forms import UserCreationForm
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
 # Create your views here.
+from users.models import User
+
 
 class Register(View):
 
@@ -21,12 +25,15 @@ class Register(View):
         form = UserCreationForm(request.POST)
 
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            return redirect('image_list')
+            new_user = form.save(commit=False)
+            new_user.username = form.cleaned_data.get('username')
+            new_user.set_password(form.cleaned_data.get('password1'))
+            new_user.save()
+            new_user.groups.add(Group.objects.get(name='User'))
+            login_user = authenticate(request, username=form.cleaned_data.get('username'), password=form.cleaned_data.get('password1'))
+            if login_user:
+                login(request, login_user)
+                return redirect('image_list')
         context = {
             'form': form
         }
@@ -50,3 +57,12 @@ class Register(View):
             'form': PasswordChangeForm(user=request.user)
         }
         return render(request, 'registration/password_change2.html', context)'''
+
+def user_page(request, username):
+    user = get_object_or_404(User, username=username)
+    images = Image.objects.filter(author=user).order_by('-created_date')
+    context = {
+        'images': images,
+        'username': username,
+    }
+    return render(request, 'users/user_page.html', context)

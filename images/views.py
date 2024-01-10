@@ -1,8 +1,12 @@
-from django.shortcuts import render, get_object_or_404
+from django.core.files.storage import FileSystemStorage
+from django.shortcuts import render, get_object_or_404, redirect
+
+from .forms import ImageForm
 from .models import Image
 from sklearn.cluster import KMeans
 import cv2
 import numpy as np
+from django.utils import timezone
 
 
 # Create your views here.
@@ -35,6 +39,10 @@ def image_list(request):
 def image_details(request, pk):
     image = get_object_or_404(Image, pk=pk)
 
+    admin = False
+    if request.user.groups.filter(name="Admin").exists():
+        admin = True
+
     palitra = palette(image.content.url[1::])
 
     dominant_color_HEX = "#{:02x}{:02x}{:02x} ".format(int(palitra[0][1][0]), int(palitra[0][1][1]), int(palitra[0][1][2])) + "{:0.2f}%".format(palitra[0][0] * 100)
@@ -53,5 +61,59 @@ def image_details(request, pk):
         'dominant_color': dominant_color_HEX,
         'average_color': average_color_HEX,
         'palette': palitra_HEX,
+        'admin': admin,
     }
     return render(request, 'images/image_details.html', context)
+
+def image_new(request):
+    if request.method == "POST" and request.FILES:
+        form = ImageForm(request.POST)
+        if form.is_valid():
+            image = form.save(commit=False)
+            image.author = request.user
+
+            file = request.FILES['content']
+            #dir = settings.MEDIA_ROOT+'/img/'
+            fs = FileSystemStorage()
+            filename = fs.save(file.name, file)
+            #file_url = fs.url(filename)
+            image.content = file.name
+            image.save()
+            return redirect('image_details', pk=image.pk)
+    else:
+        form = ImageForm()
+    return render(request, 'images/image_edit.html', {'form': form})
+
+def image_edit(request, pk):
+    image = get_object_or_404(Image, pk=pk)
+    file_name_old = image.content.url[1::]
+    if request.method == "POST" and request.FILES:
+        form = ImageForm(request.POST, instance=image)
+        if form.is_valid():
+            image = form.save(commit=False)
+            image.author = request.user
+            image.last_modified = timezone.now()
+
+            fs = FileSystemStorage()
+            fs.delete(file_name_old)
+
+            file_new = request.FILES['content']
+            #dir = settings.MEDIA_ROOT+'/img/'
+            #fs = FileSystemStorage()
+            filename = fs.save(file_new.name, file_new)
+            # file_url = fs.url(filename)
+            image.content = file_new.name
+
+            image.save()
+            return redirect('image_details', pk=image.pk)
+    else:
+        form = ImageForm(instance=image)
+    return render(request, 'images/image_edit.html', {'form': form})
+
+def image_delete(request, pk):
+    image = get_object_or_404(Image, pk=pk)
+    file_name_old = image.content.url[1::]
+    fs = FileSystemStorage()
+    fs.delete(file_name_old)
+    image.delete()
+    return redirect('image_list')
