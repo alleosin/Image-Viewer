@@ -59,10 +59,50 @@ class Register(View):
         return render(request, 'registration/password_change2.html', context)'''
 
 def user_page(request, username):
-    user = get_object_or_404(User, username=username)
-    images = Image.objects.filter(author=user).order_by('-created_date')
+    owner = get_object_or_404(User, username=username)
+    images = Image.objects.filter(author=owner).order_by('-created_date')
+
+    user_admin = False
+    if request.user.groups.filter(name="Admin").exists():
+        user_admin = True
+
+    owner_admin = False
+    if owner.groups.filter(name="Admin").exists():
+        owner_admin = True
+
     context = {
         'images': images,
-        'username': username,
+        'owner': owner,
+        'owner_admin': owner_admin,
+        'user_admin': user_admin,
     }
     return render(request, 'users/user_page.html', context)
+
+def user_delete(request, username):
+    user = get_object_or_404(User, username=username)
+    user.delete()
+    return redirect('image_list')
+
+def user_add_to_admin(request, username):
+    user = get_object_or_404(User, username=username)
+    user.groups.add(Group.objects.get(name='Admin'))
+    user.save()
+    return redirect('user_page', username)
+
+class UserNew(Register):
+    template_name = 'registration/user_new.html'
+
+    def post(self, request):
+        form = UserCreationForm(request.POST)
+
+        if form.is_valid():
+            new_user = form.save(commit=False)
+            new_user.username = form.cleaned_data.get('username')
+            new_user.set_password(form.cleaned_data.get('password1'))
+            new_user.save()
+            new_user.groups.add(Group.objects.get(name='User'))
+            return redirect('user_page', new_user.username)
+        context = {
+            'form': form
+        }
+        return render(request, self.template_name, context)
