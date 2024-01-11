@@ -9,7 +9,7 @@
     <div class="page-header">
         <ul>
             <li>
-                User {{ user }}
+                <p>User: <a href="{% url 'user_page' username=user %}">{{ user }}</a></p>
             </li>
             <li>
                 <h1><a href="/">ImageViewer</a></h1>
