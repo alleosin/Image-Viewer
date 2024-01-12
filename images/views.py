@@ -1,4 +1,5 @@
 from django.core.files.storage import FileSystemStorage
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView
@@ -32,11 +33,17 @@ def palette(file_path):
     return img_colors
 
 def image_list(request):
-    images = Image.objects.all()
+    images = Image.objects.all().order_by('-created_date')
+
     my_filter = ImageFilter(request.GET, queryset=images)
     images = my_filter.qs
+
+    paginator = Paginator(images, 35)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'images': images,
+        'page_obj': page_obj,
         'my_filter': my_filter
     }
     return render(request, 'images/image_list.html', context)
@@ -124,6 +131,7 @@ def image_delete(request, pk):
     return redirect('image_list')
 
 class SearchResults(ListView):
+    paginate_by = 35
     model = Image
     template_name = 'images/search_results.html'
 

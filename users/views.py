@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import Group
+from django.core.paginator import Paginator
 
 from images.models import Image
 from users.forms import UserCreationForm
@@ -62,6 +63,10 @@ def user_page(request, username):
     owner = get_object_or_404(User, username=username)
     images = Image.objects.filter(author=owner).order_by('-created_date')
 
+    paginator = Paginator(images, 35)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     user_admin = False
     if request.user.groups.filter(name="Admin").exists():
         user_admin = True
@@ -71,7 +76,7 @@ def user_page(request, username):
         owner_admin = True
 
     context = {
-        'images': images,
+        'page_obj': page_obj,
         'owner': owner,
         'owner_admin': owner_admin,
         'user_admin': user_admin,
