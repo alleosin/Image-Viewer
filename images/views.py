@@ -1,5 +1,7 @@
 from django.core.files.storage import FileSystemStorage
+from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import ListView
 
 from .forms import ImageForm
 from .models import Image
@@ -117,3 +119,13 @@ def image_delete(request, pk):
     fs.delete(file_name_old)
     image.delete()
     return redirect('image_list')
+
+class SearchResults(ListView):
+    model = Image
+    template_name = 'images/search_results.html'
+
+
+    def get_queryset(self):  # новый
+        query = self.request.GET.get('q')
+        object_list = Image.objects.filter(description__icontains=query).order_by('-created_date')
+        return object_list

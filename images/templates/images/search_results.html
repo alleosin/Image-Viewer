@@ -15,12 +15,15 @@
         <a href="{% url 'register' %}">Register</a>
     {% endif %}
 
-    <form action="{% url 'search_results' %}" method="get">
-        <input name="q" type="text" placeholder="Search...">
-        <button type="submit" class="btn btn-success">submit</button>
-    </form>
+    <h1>Search Results</h1>
 
-    {% for image in images %}
+    <ul>
+      {% for image in object_list %}
         <a href="{% url 'image_details' pk=image.pk %}"><img src="{{ image.content.url }}" alt="Image" height="206" width="206"></a>
-    {% endfor %}
+        {% empty %}
+            <p>There are no results for your query.</p>
+      {% endfor %}
+    </ul>
 {% endblock %}
+
+
