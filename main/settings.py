@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'images.apps.ImagesConfig',
     'users.apps.UsersConfig',
+    'django_filters'
 ]
 
 MIDDLEWARE = [

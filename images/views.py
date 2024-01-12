@@ -9,7 +9,7 @@ from sklearn.cluster import KMeans
 import cv2
 import numpy as np
 from django.utils import timezone
-
+from .filters import ImageFilter
 
 # Create your views here.
 def palette(file_path):
@@ -33,8 +33,11 @@ def palette(file_path):
 
 def image_list(request):
     images = Image.objects.all()
+    my_filter = ImageFilter(request.GET, queryset=images)
+    images = my_filter.qs
     context = {
         'images': images,
+        'my_filter': my_filter
     }
     return render(request, 'images/image_list.html', context)
 
