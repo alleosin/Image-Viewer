@@ -3,21 +3,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Image Viewer</title>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'images/style.css' %}">
 </head>
-<body class="container">
-    <div class="page-header">
-        <ul>
-            <li>
-                <p>User: <a href="{% url 'user_page' username=user %}">{{ user }}</a></p>
-            </li>
-            <li>
-                <h1><a href="/">ImageViewer</a></h1>
-            </li>
-        </ul>
-    </div>
+<body>
+    <header>
+        <h1><a href="/">ImageViewer</a></h1>
+        <div class="authentication">
+            {% if user.is_authenticated %}
+                <a href="{% url 'user_page' username=user.get_username %}">{{ user.get_username }}</a>
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Log out</button>
+                </form>
+            {% else %}
+                <form action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <button type="submit">Login</button>
+                </form>
+                <form action="{% url 'register' %}">
+                    {% csrf_token %}
+                    <button type="submit">Register</button>
+                </form>
+            {% endif %}
+         </div>
+    </header>
     <div class="content container">
         <div class="row">
+            {% if user.is_authenticated %}
+                    <a href="{% url 'image_new' %}" class="top-menu">Add image</a>
+            {% endif %}
             <div class="col-md-8">
                 {% block content %}
                 {% endblock %}

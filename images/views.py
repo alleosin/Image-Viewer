@@ -38,7 +38,7 @@ def image_list(request):
     my_filter = ImageFilter(request.GET, queryset=images)
     images = my_filter.qs
 
-    paginator = Paginator(images, 35)
+    paginator = Paginator(images, 3)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -131,7 +131,7 @@ def image_delete(request, pk):
     return redirect('image_list')
 
 class SearchResults(ListView):
-    paginate_by = 35
+    paginate_by = 3
     model = Image
     template_name = 'images/search_results.html'
 

@@ -1,15 +1,11 @@
 {% extends 'images/base.html' %}
+{% block title %}
+   Image Edit
+{% endblock %}
 
 {% block content %}
-    <hr>
-
     {% if user.is_authenticated %}
-        <a href="{% url 'password_change' %}">Change password</a> |
-        <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit">Log out</button>
-        </form>
-        <h1>New image</h1>
+        <h2>New image</h2>
         <form method="POST" class="image-form" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form }}

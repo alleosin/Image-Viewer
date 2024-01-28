@@ -1,26 +1,23 @@
 {% extends 'images/base.html' %}
 
+{% block title %}
+   Image Details
+{% endblock %}
+
 {% block content %}
-    <hr>
-
-    {% if user.is_authenticated %}
-        <a href="{% url 'password_change' %}">Change password</a> |
-        <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit">Log out</button>
-        </form>
-    {% else %}
-        <a href="{% url 'login' %}">Login</a> |
-        <a href="{% url 'register' %}">Register</a>
-    {% endif %}
-
-    <img src="{{ image.content.url }}" alt="Image">
-
+    <img src="{{ image.content.url }}" alt="Image" height="500px">
+    <br>
     {% if user == image.author or admin %}
         {% if user == image.author %}
-            <a href="{% url 'image_edit' pk=image.pk %}">Change image</a>
+            <form action="{% url 'image_edit' pk=image.pk %}">
+                    {% csrf_token %}
+                    <button type="submit">Change image</button>
+            </form>
         {% endif %}
-        <a href="{% url 'image_delete' pk=image.pk %}">Delete image</a>
+        <form action="{% url 'image_delete' pk=image.pk %}">
+                    {% csrf_token %}
+                    <button type="submit">Delete image</button>
+        </form>
     {% endif %}
 
     <div class="author">
@@ -31,7 +28,7 @@
         <p>Image description: {{ image.description }} </p>
     </div>
     <div class="size">
-        <p>Image size: {{ image.content.width }}x{{ image.content.height }}({{ image.content.size }} байт)</p>
+        <p>Image size: {{ image.content.width }}x{{ image.content.height }}({{ image.content.size }} byte)</p>
     </div>
     <div class="predominant_color">
         <p>Dominant color: {{ dominant_color }}</p>
